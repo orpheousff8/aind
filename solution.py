@@ -12,11 +12,9 @@ boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
-diag_units1 = [rows[rd-1]+str(cd) for rd in range(1,10) for cd in range(1,10) if rd == cd]
-diag_units2 = [rows[rd-1]+str(cd) for rd in range(1,10) for cd in range(1,10) if rd + cd == 10]
-diag_units = [diag_units1,diag_units2]
+diagonal_units = [[r+c for r,c in zip(rows,cols)], [r+c for r,c in zip(rows,cols[::-1])]]
 
-unitlist = row_units + column_units + square_units + diag_units
+unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
@@ -41,20 +39,23 @@ def naked_twins(values):
     """
 
     # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
 
+    #search for any box that has length = 2
     twin_values = [box for box in values.keys() if len(values[box]) == 2]
     for box in twin_values:
         digit = values[box]
+        #search for common peer(s) of twin_values
         for peer in peers[box]:
             if values[peer] == digit:
                 coPeer = list(set(peers[box]) & set(peers[peer]))
-
+                #search further for the common peer(s) that contain either or both of the twin_values (super set of twin_values)
                 superCP = [cp for cp in coPeer if digit[0] in values[cp] or digit[1] in values[cp]]
-
+                
+    # Eliminate the naked twins as possibilities for their peers
+                
                 for scp in superCP:
-                    values[scp] = values[scp].replace(digit[0],'')
-                    values[scp] = values[scp].replace(digit[1],'')
+                    assign_value(values, scp, values[scp].replace(digit[0],''))
+                    assign_value(values, scp, values[scp].replace(digit[1],''))
    
     return values
 
@@ -98,7 +99,7 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            values[peer] = values[peer].replace(digit,'')
+            assign_value(values, peer, values[peer].replace(digit,''))
     return values
 
 
@@ -107,7 +108,7 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                values[dplaces[0]] = digit
+                assign_value(values, dplaces[0], digit)
     return values
 
 def reduce_puzzle(values):
@@ -134,13 +135,7 @@ def search(values):
         return values ## Solved!
     # Choose one of the unfilled squares with the fewest possibilities
     n,s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
-    """ s = ''
-    for box in boxes:
-        if len(values[box]) > 1:
-            s = box
-    for box in boxes:
-        if len(values[box]) > 1 and len(values[box]) < len(values[s]):
-            s = box """
+
     # Now use recurrence to solve each one of the resulting sudokus, and 
     for value in values[s]:
         new_sudoku = values.copy()

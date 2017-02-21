@@ -3,11 +3,16 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: The same as elimination and OnlyDigit problem. NakedTwin is just another method.
+A: I guess the question should be 'How does Naked twin method make constraint propagation works faster?' (Sorry. I'm not a native speaker.)
+As this techniques helps us eliminate possiblities of the common peer(s) that has either or both posible digit of the Naked twins,
+we will have less time of running the depth-first-search for those possibility we've eliminated. It makes our program runs faster.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: I just added 2 more unit in diagonal. The constrain propagation works the same way as before, just has 2 more possible peers.
+A: For a diagonal Sudoku compared to a normal one, we have to consider an additinal set of diagonal peer if a box is in ['A1','B2','C3',...,'I9'] or ['A9','B8','C7',...,'I1'].
+(Consider both diagonal peers if the box is 'E5')
+Luckily, the provided codes has already had a good way to create the unit dictionary and the peer dictionary from the unitlist list.
+What I needed to do was adding 2 more list of diagonal unit into the provided unitlist list. Diagonal peers will be added to the peer dictionary. Hooray!
 
 ### Install
 
